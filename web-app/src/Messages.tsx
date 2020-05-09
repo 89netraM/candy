@@ -14,6 +14,8 @@ export class Messages extends Component<{}, MessagesState> {
 		loading: true
 	};
 
+	private loadingTimeout: number = -1;
+
 	public constructor(props: {}) {
 		super(props);
 
@@ -22,7 +24,7 @@ export class Messages extends Component<{}, MessagesState> {
 
 	public componentDidMount(): void {
 		// TODO: Load real messages!
-		setTimeout(() =>
+		this.loadingTimeout = window.setTimeout(() =>
 			this.setState({
 				messages: [
 					{
@@ -70,6 +72,10 @@ export class Messages extends Component<{}, MessagesState> {
 			}),
 			2500
 		);
+	}
+
+	public componentWillUnmount(): void {
+		window.clearTimeout(this.loadingTimeout);
 	}
 
 	public render(): JSX.Element {
