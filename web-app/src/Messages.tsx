@@ -107,7 +107,7 @@ export class Messages extends Component<{}, MessagesState> {
 
 		return (
 			<>
-				<Text variant="xLarge">Senaste godisöppningarna</Text>
+				<Text variant="xLarge" block>Senaste godisöppningarna</Text>
 				<Stack tokens={{ childrenGap: "2rem" }}>{content}</Stack>
 			</>
 		);
@@ -165,9 +165,9 @@ export class Messages extends Component<{}, MessagesState> {
 					})()}
 				</Card.Item>
 				<Card.Section styles={sectionStyles}>
-					<Text variant="medium" styles={titleStyles}>{message.candyType}</Text>
-					<Text variant="smallPlus">{message.opener}</Text>
-					<Text variant="small">{dateText}</Text>
+					<Text variant="medium" block styles={titleStyles}>{message.candyType}</Text>
+					<Text variant="smallPlus" block>{message.opener}</Text>
+					<Text variant="small" block>{dateText}</Text>
 				</Card.Section>
 			</Card>
 		);

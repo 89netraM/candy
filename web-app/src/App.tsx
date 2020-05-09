@@ -24,7 +24,7 @@ export class App extends Component<{}, AppState> {
 	public render(): ReactNode {
 		return (
 			<>
-				<Text variant="mega">Godis</Text>
+				<Text variant="mega" block>Godis</Text>
 				<Pivot style={App.pivotStyle} defaultSelectedKey="noti">
 					<PivotItem headerText="Öppna godis" itemKey="open" className={AnimationClassNames.slideRightIn40} style={App.itemStyle}>
 						<Text variant="large">Öppna godis</Text>
