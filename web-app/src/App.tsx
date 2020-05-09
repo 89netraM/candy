@@ -1,6 +1,7 @@
 import React, { Component, ReactNode, CSSProperties } from "react";
 import { Text, Pivot, PivotItem, AnimationClassNames } from "@fluentui/react";
 import { Messages } from "./Messages";
+import { Open } from "./Open";
 
 interface AppState {
 
@@ -25,9 +26,9 @@ export class App extends Component<{}, AppState> {
 		return (
 			<>
 				<Text variant="mega" block>Godis</Text>
-				<Pivot style={App.pivotStyle} defaultSelectedKey="noti">
+				<Pivot style={App.pivotStyle} defaultSelectedKey="open">
 					<PivotItem headerText="Öppna godis" itemKey="open" className={AnimationClassNames.slideRightIn40} style={App.itemStyle}>
-						<Text variant="large">Öppna godis</Text>
+						<Open/>
 					</PivotItem>
 					<PivotItem headerText="Meddelanden" itemKey="noti" className={AnimationClassNames.slideLeftIn40} style={App.itemStyle}>
 						<Messages/>
