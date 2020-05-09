@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text, Stack, Separator, Image, ITextStyles, getTheme, Spinner, SpinnerSize, AnimationClassNames } from "@fluentui/react";
+import { Text, Stack, Separator, Image, ITextStyles, getTheme, Spinner, SpinnerSize, AnimationClassNames, Toggle, Label } from "@fluentui/react";
 import { Card, ICardTokens, ICardStyles, ICardSectionStyles } from "@uifabric/react-cards";
 import { Message } from "./Message";
 
@@ -107,7 +107,13 @@ export class Messages extends Component<{}, MessagesState> {
 
 		return (
 			<>
-				<Text variant="xLarge" block>Senaste godisöppningarna</Text>
+				<Stack horizontal verticalAlign="baseline" horizontalAlign="space-between">
+					<Text variant="xLarge" block>Senaste godisöppningarna</Text>
+					<Stack horizontal verticalAlign="baseline" tokens={{ childrenGap: "0.5rem" }}>
+						<Label htmlFor="push-noti">Push notiser</Label>
+						<Toggle id="push-noti" onChange={this.onPushChange.bind(this)}/>
+					</Stack>
+				</Stack>
 				<Stack tokens={{ childrenGap: "2rem" }}>{content}</Stack>
 			</>
 		);
@@ -171,5 +177,10 @@ export class Messages extends Component<{}, MessagesState> {
 				</Card.Section>
 			</Card>
 		);
+	}
+
+	private onPushChange(e: any, checked: boolean | undefined): void {
+		// TODO: Tell Push API/back-end about the new settings
+		console.log(checked === true);
 	}
 }
