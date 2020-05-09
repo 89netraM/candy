@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./App";
 import { loadTheme } from "@fluentui/react";
+import Worker from "./push.worker.ts";
 
 loadTheme({
 	palette: {
@@ -29,5 +30,7 @@ loadTheme({
 		white: "#ffffff"
 	}
 });
+
+const worker = new Worker();
 
 ReactDOM.render(<App/>, document.getElementById("app"));

@@ -18,7 +18,9 @@
 		"react-dom": "^16.8.6"
 	},
 	"devDependencies": {
+		"just-scripts": "^0.27.0",
 		"just-stack-react": "^1.0.0",
-		"just-scripts": "^0.27.0"
+		"ts-loader": "^7.0.3",
+		"worker-loader": "^2.0.0"
 	}
 }
