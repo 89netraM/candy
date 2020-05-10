@@ -1,6 +1,6 @@
 export interface Message {
 	candyType: string;
-	date: Date;
+	date: number;
 	image?: string;
 	opener: string;
 }

@@ -1,0 +1,93 @@
+import registerServiceWorker from "service-worker-loader!./push.worker";
+
+export class ClientPushService {
+	private static _instance: Promise<ClientPushService> | null = null;
+	public static get instance(): Promise<ClientPushService> {
+		if (ClientPushService._instance != null) {
+			return ClientPushService._instance;
+		}
+		else {
+			return Promise.reject(new Error("Try to register the Service first."));
+		}
+	}
+	public static async register(): Promise<ClientPushService> {
+		try {
+			const registration = await registerServiceWorker(
+				s => window.location.href.substring(0, window.location.href.lastIndexOf("/")) + s,
+				{ scope: "./" }
+			);
+			await registration.update();
+
+			this._instance = Promise.resolve(new ClientPushService(registration.pushManager));
+		}
+		catch (ex) {
+			this._instance = Promise.reject(ex);
+		}
+
+		return this._instance;
+	}
+
+	// Borrowed from Mozilla: https://github.com/mozilla/serviceworker-cookbook/blob/master/tools.js
+	private static urlBase64ToUint8Array(base64String: string): Uint8Array {
+		const padding = "=".repeat((4 - base64String.length % 4) % 4);
+		const base64 = (base64String + padding).replace(/\-/g, "+").replace(/_/g, "/");
+
+		const rawData = window.atob(base64);
+		const outputArray = new Uint8Array(rawData.length);
+
+		for (let i = 0; i < rawData.length; i++) {
+			outputArray[i] = rawData.charCodeAt(i);
+		}
+
+		return outputArray;
+	}
+
+	private readonly pushManager: PushManager;
+
+	private constructor(pushManager: PushManager) {
+		this.pushManager = pushManager;
+	}
+
+	public async subscribe(): Promise<void> {
+		await this.acquireNotificationPermissions();
+		let subscription = await this.pushManager.getSubscription();
+
+		if (subscription == null) {
+			// TODO: Fetch key
+			const vapidPublicKey = "dummyKey";
+			const convertedKey = ClientPushService.urlBase64ToUint8Array(vapidPublicKey);
+
+			subscription = await this.pushManager.subscribe({
+				userVisibleOnly: true,
+				applicationServerKey: convertedKey
+			});
+		}
+
+		// TODO: Register subscription with back-end
+	}
+
+	private async acquireNotificationPermissions(): Promise<void> {
+		if ("Notification" in window) {
+			if (Notification.permission === "denied") {
+				throw new Error("Du måste godkänna notifikationer först.");
+			}
+			else if (Notification.permission === "default") {
+				await Notification.requestPermission();
+				await this.acquireNotificationPermissions();
+			}
+		}
+		else {
+			throw new Error("Din webbläsare kan inte skicka notifikationer.");
+		}
+	}
+
+	public async unsubscribe(): Promise<void> {
+		const subscription = await this.pushManager.getSubscription();
+
+		// TODO: Remove subscription from back-end
+
+		if (subscription != null) {
+			await subscription.unsubscribe();
+		}
+	}
+}

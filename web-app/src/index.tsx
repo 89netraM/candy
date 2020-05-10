@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./App";
 import { loadTheme } from "@fluentui/react";
-import registerServiceWorker, { ServiceWorkerNoSupportError } from "service-worker-loader!./push.worker";
+import { ClientPushService } from "./ClientPushService";
 
 loadTheme({
 	palette: {
@@ -31,20 +31,6 @@ loadTheme({
 	}
 });
 
-registerServiceWorker(
-	s => window.location.href.substring(0, window.location.href.lastIndexOf("/")) + s,
-	{ scope: "./" }
-)
-.then(registration => {
-	console.log("Success", registration);
-})
-.catch(error => {
-	if (error instanceof ServiceWorkerNoSupportError) {
-		console.log("Browser doesn't support Service Workers 😢");
-	}
-	else {
-		console.log("🤔", error);
-	}
-});
+ClientPushService.register();
 
 ReactDOM.render(<App/>, document.getElementById("app"));

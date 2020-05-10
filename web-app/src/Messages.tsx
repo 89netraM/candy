@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Text, Stack, Separator, Image, ITextStyles, getTheme, Spinner, SpinnerSize, AnimationClassNames, Toggle, Label } from "@fluentui/react";
 import { Card, ICardTokens, ICardStyles, ICardSectionStyles } from "@uifabric/react-cards";
 import { Message } from "./Message";
+import { ClientPushService } from "./ClientPushService";
 
 interface MessagesState {
 	messages: Array<Message>,
@@ -29,48 +30,48 @@ export class Messages extends Component<{}, MessagesState> {
 				messages: [
 					{
 						candyType: "Geléhallon1",
-						date: new Date(2020, 4, 9, 10, 0),
+						date: new Date(2020, 4, 9, 10, 0).getTime(),
 						opener: "Mårten"
 					},
 					{
 						candyType: "Geléhallon2",
-						date: new Date(2020, 4, 8, 10, 0),
+						date: new Date(2020, 4, 8, 10, 0).getTime(),
 						opener: "Mårten"
 					},
 					{
 						candyType: "Geléhallon3",
-						date: new Date(2020, 4, 6, 10, 0),
+						date: new Date(2020, 4, 6, 10, 0).getTime(),
 						opener: "Mårten"
 					},
 					{
 						candyType: "Geléhallon4",
-						date: new Date(2020, 4, 5, 10, 0),
+						date: new Date(2020, 4, 5, 10, 0).getTime(),
 						opener: "Mårten"
 					},
 					{
 						candyType: "Geléhallon5",
-						date: new Date(2020, 4, 1, 10, 0),
+						date: new Date(2020, 4, 1, 10, 0).getTime(),
 						opener: "Mårten"
 					},
 					{
 						candyType: "Geléhallon6",
-						date: new Date(2020, 3, 30, 10, 0),
+						date: new Date(2020, 3, 30, 10, 0).getTime(),
 						opener: "Mårten"
 					},
 					{
 						candyType: "Geléhallon7",
-						date: new Date(2020, 3, 10, 10, 0),
+						date: new Date(2020, 3, 10, 10, 0).getTime(),
 						opener: "Mårten"
 					},
 					{
 						candyType: "Geléhallon8",
-						date: new Date(2020, 3, 1, 10, 0),
+						date: new Date(2020, 3, 1, 10, 0).getTime(),
 						opener: "Mårten"
 					}
 				],
 				loading: false
 			}),
-			2500
+			1000
 		);
 	}
 
@@ -86,11 +87,11 @@ export class Messages extends Component<{}, MessagesState> {
 		const thisWeekDate = new Date(todayDate.getTime() - oneDay * todayDate.getDay());
 		const lastWeekDate = new Date(thisWeekDate.getTime() - oneDay * 7);
 
-		const todayMessages = this.state.messages.filter(m => todayDate.getTime() <= m.date.getTime());
-		const yesterdayMessages = this.state.messages.filter(m => yesterdayDate.getTime() <= m.date.getTime() && m.date.getTime() < todayDate.getTime());
-		const thisWeekMessages = this.state.messages.filter(m => thisWeekDate.getTime() <= m.date.getTime() && m.date.getTime() < yesterdayDate.getTime());
-		const lastWeekMessages = this.state.messages.filter(m => lastWeekDate.getTime() <= m.date.getTime() && m.date.getTime() < thisWeekDate.getTime());
-		const earlierMessages = this.state.messages.filter(m => m.date.getTime() < lastWeekDate.getTime());
+		const todayMessages = this.state.messages.filter(m => todayDate.getTime() <= m.date);
+		const yesterdayMessages = this.state.messages.filter(m => yesterdayDate.getTime() <= m.date && m.date < todayDate.getTime());
+		const thisWeekMessages = this.state.messages.filter(m => thisWeekDate.getTime() <= m.date && m.date < yesterdayDate.getTime());
+		const lastWeekMessages = this.state.messages.filter(m => lastWeekDate.getTime() <= m.date && m.date < thisWeekDate.getTime());
+		const earlierMessages = this.state.messages.filter(m => m.date < lastWeekDate.getTime());
 
 		let content = <Spinner size={SpinnerSize.large}/>;
 		if (!this.state.loading) {
@@ -157,9 +158,10 @@ export class Messages extends Component<{}, MessagesState> {
 				color: theme.palette.themePrimary
 			}
 		};
-		const dateText = `${message.date.toISOString().substring(0, 10)} ${message.date.getHours()}:${("0" + message.date.getMinutes()).substr(-2)}`;
+		const date = new Date(message.date);
+		const dateText = `${date.toISOString().substring(0, 10)} ${date.getHours()}:${("0" + date.getMinutes()).substr(-2)}`;
 		return (
-			<Card key={message.date.toISOString()} className={AnimationClassNames.slideUpIn20} horizontal styles={styles} tokens={tokens}>
+			<Card key={message.date} className={AnimationClassNames.slideUpIn20} horizontal styles={styles} tokens={tokens}>
 				<Card.Item>
 					{(() => {
 						if (message.image != null) {
@@ -179,8 +181,20 @@ export class Messages extends Component<{}, MessagesState> {
 		);
 	}
 
-	private onPushChange(e: any, checked: boolean | undefined): void {
-		// TODO: Tell Push API/back-end about the new settings
-		console.log(checked === true);
+	private async onPushChange(e: any, checked: boolean | undefined): Promise<void> {
+		try {
+			if (checked === true) {
+				const pushService = await ClientPushService.instance;
+				await pushService.subscribe();
+			}
+			else if (checked === false) {
+				const pushService = await ClientPushService.instance;
+				await pushService.unsubscribe();
+			}
+		}
+		catch (ex) {
+			// TODO: Error handling
+			console.log(ex);
+		}
 	}
 }
