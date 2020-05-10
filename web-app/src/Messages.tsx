@@ -1,16 +1,22 @@
 import React, { Component } from "react";
-import { Text, Stack, Separator, Image, ITextStyles, getTheme, Spinner, SpinnerSize, AnimationClassNames, Toggle, Label } from "@fluentui/react";
+import { Text, Stack, Separator, Image, ITextStyles, getTheme, Spinner, SpinnerSize, AnimationClassNames, Toggle, Label, Dialog, DialogType, DialogFooter, DefaultButton } from "@fluentui/react";
 import { Card, ICardTokens, ICardStyles, ICardSectionStyles } from "@uifabric/react-cards";
 import { Message } from "./Message";
 import { ClientPushService } from "./ClientPushService";
 
 interface MessagesState {
+	notifications: boolean,
 	messages: Array<Message>,
-	loading: boolean
+	loading: boolean,
+	error?: {
+		title: string,
+		message: string
+	}
 }
 
 export class Messages extends Component<{}, MessagesState> {
 	private static readonly defaultState: MessagesState = {
+		notifications: false,
 		messages: [ ],
 		loading: true
 	};
@@ -73,13 +79,23 @@ export class Messages extends Component<{}, MessagesState> {
 			}),
 			1000
 		);
+
+		this.updateNotifications();
 	}
 
 	public componentWillUnmount(): void {
 		window.clearTimeout(this.loadingTimeout);
 	}
 
+	private async updateNotifications(): Promise<void> {
+		this.setState({
+			notifications: await (await ClientPushService.instance).isSubscribed()
+		});
+	}
+
 	public render(): JSX.Element {
+		const theme = getTheme();
+
 		const oneDay = 24 * 60 * 60 * 1000;
 		const todayDate = new Date();
 		todayDate.setHours(0, 0, 0, 0);
@@ -106,13 +122,41 @@ export class Messages extends Component<{}, MessagesState> {
 			);
 		}
 
+		let errorDialog = <></>;
+		if (this.state.error != null) {
+			const closeModal = () => this.setState({ error: undefined });
+			errorDialog = (
+				<Dialog
+					hidden={false}
+					onDismiss={closeModal}
+					dialogContentProps={{
+						type: DialogType.largeHeader,
+						title: this.state.error.title,
+						subText: this.state.error.message,
+						styles: {
+							title: {
+								color: theme.semanticColors.errorText
+							},
+							content: {
+								borderTopColor: theme.semanticColors.errorText
+							}
+						}
+					}}>
+					<DialogFooter>
+						<DefaultButton onClick={closeModal}>OK</DefaultButton>
+					</DialogFooter>
+				</Dialog>
+			);
+		}
+
 		return (
 			<>
+				{errorDialog}
 				<Stack horizontal verticalAlign="baseline" horizontalAlign="space-between">
 					<Text variant="xLarge" block>Senaste godisöppningarna</Text>
 					<Stack horizontal verticalAlign="baseline" tokens={{ childrenGap: "0.5rem" }}>
 						<Label htmlFor="push-noti">Push notiser</Label>
-						<Toggle id="push-noti" onChange={this.onPushChange.bind(this)}/>
+						<Toggle id="push-noti" checked={this.state.notifications} onChange={this.onPushChange.bind(this)}/>
 					</Stack>
 				</Stack>
 				<Stack tokens={{ childrenGap: "2rem" }}>{content}</Stack>
@@ -182,6 +226,10 @@ export class Messages extends Component<{}, MessagesState> {
 	}
 
 	private async onPushChange(e: any, checked: boolean | undefined): Promise<void> {
+		this.setState({
+			notifications: checked === true
+		});
+
 		try {
 			if (checked === true) {
 				const pushService = await ClientPushService.instance;
@@ -193,8 +241,13 @@ export class Messages extends Component<{}, MessagesState> {
 			}
 		}
 		catch (ex) {
-			// TODO: Error handling
-			console.log(ex);
+			this.setState({
+				notifications: checked !== true,
+				error: {
+					title: "Kunde inte aktivera Push notiser",
+					message: ex.message
+				}
+			});
 		}
 	}
 }

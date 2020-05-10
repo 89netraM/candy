@@ -26,7 +26,7 @@ export class App extends Component<{}, AppState> {
 		return (
 			<>
 				<Text variant="mega" block>Godis</Text>
-				<Pivot style={App.pivotStyle} defaultSelectedKey="open">
+				<Pivot style={App.pivotStyle} defaultSelectedKey="noti">
 					<PivotItem headerText="Öppna godis" itemKey="open" className={AnimationClassNames.slideRightIn40} style={App.itemStyle}>
 						<Open/>
 					</PivotItem>

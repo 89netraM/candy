@@ -1,15 +1,15 @@
 import registerServiceWorker from "service-worker-loader!./push.worker";
 
 export class ClientPushService {
-	private static _instance: Promise<ClientPushService> | null = null;
-	public static get instance(): Promise<ClientPushService> {
-		if (ClientPushService._instance != null) {
-			return ClientPushService._instance;
+	private static resolveInstance: (service: ClientPushService) => void;
+	private static rejectInstance: (error: Error) => void;
+	public static readonly instance: Promise<ClientPushService> = new Promise<ClientPushService>(
+		(resolve, reject) => {
+			ClientPushService.resolveInstance = resolve;
+			ClientPushService.rejectInstance = reject;
 		}
-		else {
-			return Promise.reject(new Error("Try to register the Service first."));
-		}
-	}
+	);
+
 	public static async register(): Promise<ClientPushService> {
 		try {
 			const registration = await registerServiceWorker(
@@ -18,13 +18,14 @@ export class ClientPushService {
 			);
 			await registration.update();
 
-			this._instance = Promise.resolve(new ClientPushService(registration.pushManager));
+			const instance = new ClientPushService(registration.pushManager);
+			ClientPushService.resolveInstance(instance);
+			return instance;
 		}
 		catch (ex) {
-			this._instance = Promise.reject(ex);
+			ClientPushService.rejectInstance(ex);
+			throw ex;
 		}
-
-		return this._instance;
 	}
 
 	// Borrowed from Mozilla: https://github.com/mozilla/serviceworker-cookbook/blob/master/tools.js
@@ -89,5 +90,10 @@ export class ClientPushService {
 		if (subscription != null) {
 			await subscription.unsubscribe();
 		}
+	}
+
+	public async isSubscribed(): Promise<boolean> {
+		const subscription = await this.pushManager.getSubscription();
+		return subscription != null;
 	}
 }
