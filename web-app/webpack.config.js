@@ -7,7 +7,7 @@ module.exports = webpackMerge(
 	}),
 	{
 		output: {
-			publicPath: "/candy"
+			publicPath: "./"
 		}
 	}
 );
