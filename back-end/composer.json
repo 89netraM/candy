@@ -1,0 +1,7 @@
+{
+    "name": "candy",
+    "description": "Notify your family when you open any new candy bags",
+    "require": {
+        "minishlink/web-push": "^1.4"
+    }
+}
