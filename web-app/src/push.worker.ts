@@ -34,7 +34,7 @@ const handleNoti = async () => {
 		}
 	}
 
-	ctx.clients.openWindow("/");
+	ctx.clients.openWindow("/candy");
 };
 
 ctx.addEventListener(
