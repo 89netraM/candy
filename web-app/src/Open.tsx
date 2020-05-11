@@ -69,8 +69,19 @@ export class Open extends Component<{}, OpenState> {
 		return value.length < 3 ? "Skriv minst tre tecken" : "";
 	}
 
-	private onReport(): void {
-		// TODO: Send to backend
-		console.log(this.state);
+	private async onReport(): Promise<void> {
+		await fetch(
+			"./api/open/",
+			{
+				method: "POST",
+				redirect: "follow",
+				body: JSON.stringify({
+					message: {
+						candyType: this.state.candyType,
+						opener: this.state.name
+					}
+				})
+			}
+		)
 	}
 }
