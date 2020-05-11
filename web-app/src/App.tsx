@@ -4,11 +4,13 @@ import { Messages } from "./Messages";
 import { Open } from "./Open";
 
 interface AppState {
-
+	pane: string
 }
 
 export class App extends Component<{}, AppState> {
-	private static readonly defaultState: AppState = { };
+	private static readonly defaultState: AppState = {
+		pane: "noti"
+	};
 	private static readonly pivotStyle: CSSProperties = {
 		overflowX: "hidden"
 	};
@@ -26,9 +28,9 @@ export class App extends Component<{}, AppState> {
 		return (
 			<>
 				<Text variant="mega" block>Godis</Text>
-				<Pivot style={App.pivotStyle} defaultSelectedKey="noti">
+				<Pivot style={App.pivotStyle} selectedKey={this.state.pane} onLinkClick={i => this.navigateTo((i != null ? i.props.itemKey : null) || this.state.pane)}>
 					<PivotItem headerText="Öppna godis" itemKey="open" className={AnimationClassNames.slideRightIn40} style={App.itemStyle}>
-						<Open/>
+						<Open onOpen={() => this.navigateTo("noti")}/>
 					</PivotItem>
 					<PivotItem headerText="Meddelanden" itemKey="noti" className={AnimationClassNames.slideLeftIn40} style={App.itemStyle}>
 						<Messages/>
@@ -36,5 +38,11 @@ export class App extends Component<{}, AppState> {
 				</Pivot>
 			</>
 		);
+	}
+
+	private navigateTo(key: string): void {
+		this.setState({
+			pane: key
+		});
 	}
 }
