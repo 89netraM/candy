@@ -64,8 +64,14 @@ export class ClientPushService {
 				applicationServerKey: convertedKey
 			});
 		}
-
-		// TODO: Register subscription with back-end
+		
+		await fetch(
+			"./api/subscribe",
+			{
+				method: "POST",
+				body: JSON.stringify({ subscription: subscription.toJSON() })
+			}
+		);
 	}
 
 	private async acquireNotificationPermissions(): Promise<void> {
