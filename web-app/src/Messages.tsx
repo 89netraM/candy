@@ -21,7 +21,7 @@ export class Messages extends Component<{}, MessagesState> {
 		loading: true
 	};
 
-	private loadingTimeout: number = -1;
+	private controller: AbortController = new AbortController();
 
 	public constructor(props: {}) {
 		super(props);
@@ -30,61 +30,35 @@ export class Messages extends Component<{}, MessagesState> {
 	}
 
 	public componentDidMount(): void {
-		// TODO: Load real messages!
-		this.loadingTimeout = window.setTimeout(() =>
-			this.setState({
-				messages: [
-					{
-						candyType: "Geléhallon1",
-						date: new Date(2020, 4, 9, 10, 0).getTime(),
-						opener: "Mårten"
-					},
-					{
-						candyType: "Geléhallon2",
-						date: new Date(2020, 4, 8, 10, 0).getTime(),
-						opener: "Mårten"
-					},
-					{
-						candyType: "Geléhallon3",
-						date: new Date(2020, 4, 6, 10, 0).getTime(),
-						opener: "Mårten"
-					},
-					{
-						candyType: "Geléhallon4",
-						date: new Date(2020, 4, 5, 10, 0).getTime(),
-						opener: "Mårten"
-					},
-					{
-						candyType: "Geléhallon5",
-						date: new Date(2020, 4, 1, 10, 0).getTime(),
-						opener: "Mårten"
-					},
-					{
-						candyType: "Geléhallon6",
-						date: new Date(2020, 3, 30, 10, 0).getTime(),
-						opener: "Mårten"
-					},
-					{
-						candyType: "Geléhallon7",
-						date: new Date(2020, 3, 10, 10, 0).getTime(),
-						opener: "Mårten"
-					},
-					{
-						candyType: "Geléhallon8",
-						date: new Date(2020, 3, 1, 10, 0).getTime(),
-						opener: "Mårten"
-					}
-				],
-				loading: false
-			}),
-			1000
-		);
-
+		this.updateMessages();
 		this.updateNotifications();
 	}
 
 	public componentWillUnmount(): void {
-		window.clearTimeout(this.loadingTimeout);
+		this.controller.abort();
+	}
+
+	private async updateMessages(): Promise<void> {
+		try {
+			const response = await fetch("./api/messages", { signal: this.controller.signal });
+			const data = await response.json();
+			this.setState({
+				messages: data,
+				loading: false
+			});
+		}
+		catch (ex) {
+			if (!(ex instanceof DOMException && ex.name === "AbortError")) {
+				this.setState({
+					messages: [],
+					error: {
+						title: "Kunde inte hämta meddelanden",
+						message: ((typeof ex === "object" ? ex.message : ex) || "Men vi vet inte varför 😢")
+					},
+					loading: false
+				});
+			}
+		}
 	}
 
 	private async updateNotifications(): Promise<void> {
