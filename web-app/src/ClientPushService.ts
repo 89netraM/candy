@@ -54,7 +54,7 @@ export class ClientPushService {
 		let subscription = await this.pushManager.getSubscription();
 
 		if (subscription == null) {
-			const response = await fetch("./api/publicKey");
+			const response = await fetch("./api/publicKey/", { redirect: "follow" });
 			const data = await response.json();
 			const vapidPublicKey = data.key;
 			const convertedKey = ClientPushService.urlBase64ToUint8Array(vapidPublicKey);
@@ -66,9 +66,10 @@ export class ClientPushService {
 		}
 
 		await fetch(
-			"./api/subscribe",
+			"./api/subscribe/",
 			{
 				method: "POST",
+				redirect: "follow",
 				body: JSON.stringify({ subscription: subscription.toJSON() })
 			}
 		);
@@ -96,9 +97,10 @@ export class ClientPushService {
 			await subscription.unsubscribe();
 
 			await fetch(
-				"./api/unsubscribe",
+				"./api/unsubscribe/",
 				{
 					method: "POST",
+					redirect: "follow",
 					body: JSON.stringify({ endpoint: subscription.endpoint })
 				}
 			);

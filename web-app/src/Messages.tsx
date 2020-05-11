@@ -40,7 +40,7 @@ export class Messages extends Component<{}, MessagesState> {
 
 	private async updateMessages(): Promise<void> {
 		try {
-			const response = await fetch("./api/messages", { signal: this.controller.signal });
+			const response = await fetch("./api/messages/", { signal: this.controller.signal, redirect: "follow" });
 			const data = await response.json();
 			this.setState({
 				messages: data,
