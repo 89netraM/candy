@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Message } from "./Message";
 
 const ctx = self as unknown as ServiceWorkerGlobalScope;

@@ -9,7 +9,7 @@
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"typeRoots": ["node_modules/@types", "node_modules/just-stack-react/node_modules/@types"],
-		"lib": ["DOM", "WebWorker"]
+		"lib": ["DOM"]
 	},
 
 	"include": ["src", "typings/**/*.d.ts"]
