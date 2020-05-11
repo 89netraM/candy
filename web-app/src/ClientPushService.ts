@@ -64,7 +64,7 @@ export class ClientPushService {
 				applicationServerKey: convertedKey
 			});
 		}
-		
+
 		await fetch(
 			"./api/subscribe",
 			{
@@ -92,10 +92,16 @@ export class ClientPushService {
 	public async unsubscribe(): Promise<void> {
 		const subscription = await this.pushManager.getSubscription();
 
-		// TODO: Remove subscription from back-end
-
 		if (subscription != null) {
 			await subscription.unsubscribe();
+
+			await fetch(
+				"./api/unsubscribe",
+				{
+					method: "POST",
+					body: JSON.stringify({ endpoint: subscription.endpoint })
+				}
+			);
 		}
 	}
 
