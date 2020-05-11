@@ -13,7 +13,7 @@ if ($result->num_rows > 0) {
 				"candyType" => $row["candyType"],
 				"opener" => $row["opener"],
 				"image" => $row["image"],
-				"date" => $row["date"]
+				"date" => (double)$row["date"]
 			)
 		);
 	}
