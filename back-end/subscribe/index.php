@@ -8,8 +8,8 @@ if (isset($post["subscription"])) {
 	$stmt = $db->prepare("INSERT INTO Subscribers (endpoint, p256dh, auth) VALUES (?, ?, ?)");
 	$stmt->bind_param("sss", $endpoint, $p256dh, $auth);
 	$endpoint = $sub["endpoint"];
-	$p256dh = $sub["keys"]["p256dh"];
-	$auth = $sub["keys"]["auth"];
+	$p256dh = substr($sub["keys"]["p256dh"] . "====", 0, 88);
+	$auth = substr($sub["keys"]["auth"] . "====", 0, 24);
 
 	$stmt->execute();
 	$stmt->close();
