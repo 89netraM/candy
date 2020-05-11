@@ -54,8 +54,9 @@ export class ClientPushService {
 		let subscription = await this.pushManager.getSubscription();
 
 		if (subscription == null) {
-			// TODO: Fetch key
-			const vapidPublicKey = "dummyKey";
+			const response = await fetch("./api/publicKey");
+			const data = await response.json();
+			const vapidPublicKey = data.key;
 			const convertedKey = ClientPushService.urlBase64ToUint8Array(vapidPublicKey);
 
 			subscription = await this.pushManager.subscribe({
