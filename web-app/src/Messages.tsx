@@ -41,9 +41,9 @@ export class Messages extends Component<{}, MessagesState> {
 	private async updateMessages(): Promise<void> {
 		try {
 			const response = await fetch("./api/messages/", { signal: this.controller.signal, redirect: "follow" });
-			const data = await response.json();
+			const data: Array<Message> = await response.json();
 			this.setState({
-				messages: data,
+				messages: data.sort((a, b) => b.date - a.date),
 				loading: false
 			});
 		}
